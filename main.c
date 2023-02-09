@@ -2,195 +2,188 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <ctype.h>
+#include "safeinput.h" 
 
-void main(){
-    //String och int
-    char *name = "Stefan"; // literal = text-segmentet
-    int age = 50;
+void findFirst(){
+    char text[100];
+    char letterInput[2];
 
-    printf("My name is %s and I am %d years\n",name,age );
+    GetInput("Ange en text:",text, sizeof(text));
+    GetInput("Ange en bokstav:",letterInput, sizeof(letterInput));
+    char letter = letterInput[0];
+
+    char *find = strchr(text,letter);
+    if(find == NULL)
+        printf("Det finns inget %c i texten du matade in",letter);
+    else
+        printf("Det första stället jag hittade %c på var position %d\n",letter, find-text);
+
+}
+
+void loopAll(){
+    char text[100];
+    char letterInput[2];
+
+    GetInput("Ange en text:",text, sizeof(text));
+    GetInput("Ange en bokstav:",letterInput, sizeof(letterInput));
+    char letter = letterInput[0];
+
+    int count = 0;
+    for(int i = 0; i < strlen(text);i++){
+        if(text[i] == letter)
+            count++;
+    }
+    if(count == 0)
+        printf("Det finns inget %c i texten du matade in",letter);
+    else
+        printf("Jag hittade %c %d gånger\n",letter, count);
+
+}
+
+void replaceChar(){
+    char text[] = "Detta är en sträng som du skall ändra";
+
+    for(int i = 0; i < strlen(text);i++){
+        if(text[i] == ' ')
+            text[i] = '*';
+    }
+    int count = 0;
+    for(int i = 0; i < strlen(text);i++){
+        if(text[i] == '*')
+            count++;
+    }
     
-    char name2[] = "Stefan"; // Skillnad = stackallokerad = read+write
-    printf("My name is %s and I am %d years\n",name,age );
+
+    printf("Jag hittade %c %d gånger\n",'*', count);
+
+}
+
+void validate(){
+    char text[100];
+    char letterInput[2];
+
+    GetInput("Ange en emailaddress:",text, sizeof(text));
+
+    bool containsAt = strchr(text, '@');
+    bool containsDot = false;
+    bool okAfter = false;
+    char *lastDot = strrchr(text, '.');
+    if(lastDot){
+        containsDot = true;
+        int pos = lastDot - text;
+        int after = strlen(text) - pos - 1;
+        okAfter = after == 2 || after == 3;
+    }
+    if(containsAt && containsDot && okAfter){
+        printf("Ok epost");
+    }else{
+        printf("Invalid epost");
+    }
+}
 
 
-    //String och int 2
-    char name3[50];
-    int age3;
-    printf("What's your name:");
-    scanf(" %s", name3);
-    printf("What's your age:");
-    scanf(" %d", &age3);
+void wordCounter(){
+    char text[100];
+    GetInput("Ange en text:",text, sizeof(text));
     
-    printf("Hi, %s you are %d years\n",name3,age3 );
+    int count = 0;
+    for(int i = 0; i < strlen(text);i++){
+        if(text[i] == ' ')
+            count++;
+    }
+    int words = count+1;
 
-    if(age3 > 50){
-        printf("Wow you're old ;) \n" );
-   }
+    printf("Jag hittade %d ord\n", words);
 
-
-
-    //FÖR OCH EFTERNAMN
-     char fornamn[20];
-     char efternamn[20];
-
-     printf("Enter forname:");
-     scanf(" %s", fornamn);
-     printf("Enter surname:");
-     scanf(" %s", efternamn);
-
-     printf("Your name is %s, %s\n", efternamn, fornamn );
+}
 
 
 
-    //STRING ADDER
-    char text1[20];
-    char text2[20];
-    char text3[20];
+void palindrom(){
+    char text[100];
+    GetInput("Ange en text:",text, sizeof(text));
 
-    char textTotal[62];
-    printf("Enter text 1:");
-    scanf(" %s", text1);
-    printf("Enter text 2:");
-    scanf(" %s", text2);
-    printf("Enter text 3:");
-    scanf(" %s", text3);
-
-    strcpy(textTotal,text1 );
-    strcat(textTotal," " );
-    strcat(textTotal,text2 );
-    strcat(textTotal," " );
-    strcat(textTotal,text3 );
-
-    printf("Result: %s and it's %d chars\n", textTotal, strlen(textTotal) );
+    char cleanedText[100];
+    char cleanedTextBackwards[100];
 
 
-    srand(time(NULL));
-    //INMATNING
-    bool runAgain = true;
-    while(runAgain){
-        int random_number = rand() % 20 + 1;
-        printf("Nu blev det %d\n", random_number);
+    int count = 0;
+    for(int i = 0; i < strlen(text);i++){
+        if(text[i] == ' ')
+            continue;
+        cleanedText[count] = tolower(text[i]);
+        count++;
+    }
+    cleanedText[count] = 0;
+    
+    count = 0;
+    for(int i = strlen(cleanedText)-1; i>=0 ;i--){
+        cleanedTextBackwards[count] = cleanedText[i];
+        count++;
+    }
+    cleanedTextBackwards[count] = 0;
 
-        char cont[10];
-        while(1){
-            printf("Vill du fortsätta Yes/No?");
-            scanf(" %s", cont);
-            if(!strcmp(cont,"No")){
-                runAgain = false;
-                break;                    
-            }
-            if(!strcmp(cont,"Yes")){
-                runAgain = true;
-                break;                    
-            }
-            printf("Yes or No please");
+    if(!strcmp(cleanedText,cleanedTextBackwards)){
+        printf("palindrom");
+    }
+    else{
+        printf("ej palindrom");
+     }
+
+}
+
+void palindromSmarter(){
+    char text[100];
+    GetInput("Ange en text:",text, sizeof(text));
+
+    char cleanedText[100];
+    
+    int count = 0;
+    for(int i = 0; i < strlen(text);i++){
+        if(text[i] == ' ')
+            continue;
+        cleanedText[count] = tolower(text[i]);
+        count++;
+    }
+    bool palindrom = true;
+    for(int i = 0; i < strlen(cleanedText)/2+1;i++){
+        if(cleanedText[i] != cleanedText[strlen(cleanedText)-1-i]){
+            palindrom = false;
         }
     }
+    if(palindrom)
+        printf("palindrom");
+    else
+        printf("ej palindrom");
 
+}
 
-
-//     if(strcmp(fornamn, "Stefan") == 0 && strcmp(efternamn, "Holmberg") == 0)    {
-//         printf("What a noob\n");
-//     }
-
-//     char helanamnet[41]; // namn " " efternamn
-//     //helanamnet = fornamn + " " + efternamn;
-//     strcpy(helanamnet, fornamn );
-//     strcat(helanamnet, " "); //concat
-//     strcat(helanamnet, efternamn); //concat
-//     printf("*****\n");
-//     printf(helanamnet);
-//     printf("\n*****\n");
-
-
-
-//     if(strcmp(helanamnet, "Stefan Holmberg")== 0)    {
-//         printf("What a noob\n");
-//     }
-
-
-//     while(1)
-//     {
-//         char cont[20];
-//         printf("Vill du fortsätta Ja, Nej?");
-//         scanf(" %s", cont);
-//         //vad är cont?
-//         // array med sekvens av chars
-//         // pekare (adress) till en sekvens av chars
-//         // C känner inte till strängar...så hur 17 ska C kunna jämföra strängar
-//         // jämförelser strängar i C - jämföra om sekvens 1 är samma som sekvens 2 
-//         // if(strcmp(cont,"Nej") == 0 ){
-//         //     break;
-//         // }
-//         // if(!strcmp(cont,"Nej")){
-//         //     break;
-//         // }
-//         if(strcmp(cont,"Nej") == 0){
-//             break;
-//         }
-
-
-
-//         // if(cont == "Nej")
-//         //     break;
-//     }
-//     printf("Slut");
-
-
-
-
-//     char team[20];
-//     printf("Ange lag:");
-//     scanf(" %s", team);
-//     printf("hej hej du spelar i %s laget", team);
-     
-
-
-//     char *namn = "stefan"; // readonly med char * = "string"
-//     char namn2[] = "stefan"; // read writable -> stacken
-
-
-//     namn2[0] = 'S';
-//     namn2[2] = 'E';
-
-//     namn[0] = 'S';
-//     namn[2] = 'E';
-
-//     printf("%s\n", namn);
-//     printf("%s\n", namn2);
-//     printf("Klart\n");
-
-//     //sekvens av datatypen
-
-// //    char namn3[] = {'S', 't', 'e', 'f', 'a', 'n', 0} ;
-// //    int heatRegistrations[] = {12,33,22};
-
-
-// //    int i = 123;
-
-//     printf("%s", namn2);
-//     printf(namn2);
+void capitalLetters(){
+    char text[100];
+    GetInput("Ange en text:",text, sizeof(text));
     
-//     // GÅ IGENOM (iterera) en sträng - tecken för tecken
-//     int index = 0;
-//     int count = 0;
-//     printf("%c\n",namn[0]);
-//     printf("%c\n",namn[1]);
-//     printf("%c\n",namn[2]);
-//     printf("%c\n",namn[3]);
-//     printf("%c\n",namn[4]);
-//     printf("%c\n",namn[5]);
-//     printf("%c\n",namn[6]);
+    bool beforeWasSpace = false;
+    for(int i = 0; i < strlen(text);i++){
+        if( i == 0 ||  beforeWasSpace){
+            text[i] = toupper(text[i]);
+        }
+        beforeWasSpace = text[i] == ' ';
 
-//     /// %s
-//     while( namn[index] > 0  ){
-//         //printf("%c\n",namn[index]);
-//         index++;
-//         count++;
-//     }
-    
+    }
+    printf("%s\n",text);
+
+}
 
 
 
+void main(){
+    // findFirst();
+    // loopAll();
+    // replaceChar();
+    //validate();
+    //wordCount();
+    //palindrom();
+    //palindromSmarter();
+    capitalLetters();
 }
